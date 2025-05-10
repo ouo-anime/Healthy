@@ -1,4 +1,4 @@
-package ane.elu.carbcounter
+package ane.elu.healthy
 
 import org.junit.Test
 

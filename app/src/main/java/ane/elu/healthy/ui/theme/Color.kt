@@ -1,4 +1,4 @@
-package ane.elu.carbcounter.ui.theme
+package ane.elu.healthy.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

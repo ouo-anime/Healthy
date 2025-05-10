@@ -1,17 +1,7 @@
-package ane.elu.carbcounter
+package ane.elu.healthy
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 @Composable
-fun MainScreen() {
+fun CalcScreen() {
     var carbsPer100g by remember { mutableStateOf(TextFieldValue("")) }
     var carbExchange by remember { mutableStateOf(TextFieldValue("")) }
     var weightInGrams by remember { mutableStateOf(TextFieldValue("")) }
@@ -51,10 +41,10 @@ fun MainScreen() {
             else -> 10
         }
         val grams = if (exchangeUnits > 0 && carbs > 0) {
-        (exchangeUnits * multiplier * 100 / carbs * 100.0).roundToInt() / 100.0
-    } else {
-        0.0
-    }
+            (exchangeUnits * multiplier * 100 / carbs * 100.0).roundToInt() / 100.0
+        } else {
+            0.0
+        }
         grams.toString()
     }.getOrElse { "0.0" }
     val carbExchangeFromWeight = runCatching {

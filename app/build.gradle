@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "ane.elu.carbcounter"
+    namespace = "ane.elu.healthy"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "ane.elu.carbcounter"
+        applicationId = "ane.elu.healthy"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -48,6 +48,8 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.material3)
+    implementation libs.androidx.navigation.compose
+    implementation libs.androidx.animation
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

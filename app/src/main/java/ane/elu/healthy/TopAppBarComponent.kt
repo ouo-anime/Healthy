@@ -1,4 +1,4 @@
-package ane.elu.carbcounter
+package ane.elu.healthy
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
