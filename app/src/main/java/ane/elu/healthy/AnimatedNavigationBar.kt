@@ -23,10 +23,6 @@ fun AnimatedNavigationBar(
     buttons: List<ButtonData>,
     selectedIndex: Int,
     onItemClick: (Int) -> Unit,
-    barColor: Color,
-    circleColor: Color,
-    selectedColor: Color,
-    unselectedColor: Color,
     modifier: Modifier = Modifier
 ) {
     if (buttons.isEmpty()) {
@@ -47,7 +43,7 @@ fun AnimatedNavigationBar(
     val circleRadiusPx = density.run { circleRadius.toPx().toInt() }
 
     val offsetTransition = updateTransition(offset, label = "offset transition")
-    val animation = spring<Float>(dampingRatio = 0.5f, stiffness = Spring.StiffnessLow)
+    val animation = spring<Float>(dampingRatio = 0.9f, stiffness = Spring.StiffnessLow)
 
     val cutoutOffset by offsetTransition.animateFloat(
         transitionSpec = {
@@ -78,10 +74,10 @@ fun AnimatedNavigationBar(
             modifier = Modifier
                 .offset { circleOffset }
                 .zIndex(1f),
-            color = circleColor,
+            color = MaterialTheme.colorScheme.surfaceTint,
             radius = circleRadius,
             button = buttons[safeSelectedIndex],
-            iconColor = selectedColor
+            iconColor = MaterialTheme.colorScheme.surface
         )
 
         Row(
@@ -93,7 +89,7 @@ fun AnimatedNavigationBar(
                 }
                 .fillMaxWidth()
                 .height(56.dp)
-                .background(barColor),
+                .background(MaterialTheme.colorScheme.onPrimaryContainer),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -104,7 +100,7 @@ fun AnimatedNavigationBar(
                     onClick = { onItemClick(index) },
                     icon = {
                         val iconAlpha by animateFloatAsState(
-                            targetValue = if (isSelected) 0f else 1f,
+                            targetValue = if (isSelected) 0f else 0.5f,
                             label = "Navbar item icon"
                         )
                         Icon(
@@ -114,8 +110,8 @@ fun AnimatedNavigationBar(
                         )
                     },
                     label = { Text(button.text, style = TextStyle(fontSize = 12.sp)) },
-                    selectedColor = selectedColor,
-                    unselectedColor = unselectedColor
+                    selectedColor = MaterialTheme.colorScheme.surface,
+                    unselectedColor = MaterialTheme.colorScheme.surface
                 )
             }
         }

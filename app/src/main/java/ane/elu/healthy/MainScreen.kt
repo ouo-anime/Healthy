@@ -3,14 +3,13 @@ package ane.elu.healthy
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.outlined.Hub
+import androidx.compose.material.icons.rounded.Fastfood
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -26,12 +25,12 @@ fun MainScreen() {
     val buttons = listOf(
         ButtonData(
             text = "Home",
-            icon = Icons.Rounded.Home,
+            icon = Icons.Outlined.Hub,
             route = Screen.home.route
         ),
         ButtonData(
             text = "Calc",
-            icon = Icons.Rounded.Check,
+            icon = Icons.Rounded.Fastfood,
             route = Screen.calc.route
         )
     )
@@ -51,11 +50,7 @@ fun MainScreen() {
                         launchSingleTop = true
                         restoreState = true
                     }
-                },
-                barColor = Color.White,
-                circleColor = Color.White,
-                selectedColor = Color.Black,
-                unselectedColor = Color.Gray
+                }
             )
         }
     ) { padding ->
