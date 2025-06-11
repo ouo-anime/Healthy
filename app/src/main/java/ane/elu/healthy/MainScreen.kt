@@ -1,24 +1,30 @@
 package ane.elu.healthy
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Hub
-import androidx.compose.material.icons.rounded.Fastfood
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+
+data class NavigationBarInfo(
+    val buttons: List<ButtonData>,
+    val selectedIndex: Int,
+    val onItemClick: (Int) -> Unit
+)
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun MainScreen() {
-    val navController = rememberNavController()
+fun MainContentAndNavLogic(
+    navController: NavHostController,
+    onProvideNavigationBarInfo: (NavigationBarInfo) -> Unit
+) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute by derivedStateOf { currentBackStackEntry?.destination?.route }
 
@@ -29,38 +35,35 @@ fun MainScreen() {
             route = Screen.home.route
         ),
         ButtonData(
-            text = "Calc",
-            icon = Icons.Rounded.Fastfood,
+            text = "Diabetes",
+            icon = Icons.Outlined.WaterDrop,
             route = Screen.calc.route
         )
     )
 
-    Scaffold(
-        bottomBar = {
-            AnimatedNavigationBar(
-                buttons = buttons,
-                selectedIndex = buttons.indexOfFirst {
-                    it.route == (currentRoute ?: Screen.home.route)
-                }.coerceAtLeast(0),
-                onItemClick = { index ->
-                    navController.navigate(buttons[index].route) {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            )
+    val selectedIndex = buttons.indexOfFirst {
+        it.route == (currentRoute ?: Screen.home.route)
+    }.coerceAtLeast(0)
+
+    val onItemClick: (Int) -> Unit = { index ->
+        navController.navigate(buttons[index].route) {
+            popUpTo(navController.graph.startDestinationId) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
         }
-    ) { padding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.home.route,
-            modifier = Modifier.padding(padding)
-        ) {
-            composable(Screen.home.route) { HomeScreen() }
-            composable(Screen.calc.route) { CalcScreen() }
-        }
+    }
+
+    LaunchedEffect(buttons, selectedIndex, onItemClick) {
+        onProvideNavigationBarInfo(NavigationBarInfo(buttons, selectedIndex, onItemClick))
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = Screen.home.route,
+    ) {
+        composable(Screen.home.route) { HomeScreen() }
+        composable(Screen.calc.route) { DiabetesScreen() }
     }
 }

@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 @Composable
-fun CalcScreen() {
+fun DiabetesScreen() {
     var carbsPer100g by remember { mutableStateOf(TextFieldValue("")) }
     var carbExchange by remember { mutableStateOf(TextFieldValue("")) }
     var weightInGrams by remember { mutableStateOf(TextFieldValue("")) }
