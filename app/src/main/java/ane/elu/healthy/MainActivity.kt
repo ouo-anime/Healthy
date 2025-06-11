@@ -19,16 +19,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.navigation.compose.rememberNavController
 import ane.elu.healthy.ui.theme.CarbCounterTheme
+import androidx.core.view.WindowCompat
+import androidx.compose.ui.graphics.toArgb
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false
+        windowInsetsController.isAppearanceLightNavigationBars = false
+
         setContent {
             CarbCounterTheme {
                 val navController = rememberNavController()
                 val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
                 var navigationBarInfo by remember { mutableStateOf<NavigationBarInfo?>(null) }
+
+                window.statusBarColor = MaterialTheme.colorScheme.primary.toArgb()
+                window.navigationBarColor = MaterialTheme.colorScheme.onPrimaryContainer.toArgb()
 
                 Scaffold(
                     modifier = Modifier
