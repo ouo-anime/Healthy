@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CarbCounterTheme {
                 val navController = rememberNavController()
-                val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+                val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
                 var navigationBarInfo by remember { mutableStateOf<NavigationBarInfo?>(null) }
 
                 window.statusBarColor = MaterialTheme.colorScheme.primary.toArgb()
