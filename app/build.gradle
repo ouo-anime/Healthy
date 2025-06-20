@@ -42,6 +42,7 @@ android {
     }
 }
 dependencies {
+    implementation(libs.haze.jetpack.compose)
     implementation(libs.androidx.activity.compose.v190)
     implementation(libs.material3)
     implementation(libs.androidx.core.ktx)

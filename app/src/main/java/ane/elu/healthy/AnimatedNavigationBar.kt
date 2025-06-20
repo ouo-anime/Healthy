@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.zIndex
+import kotlin.math.roundToInt
 
 @Composable
 fun AnimatedNavigationBar(
@@ -31,12 +32,14 @@ fun AnimatedNavigationBar(
     }
 
     val safeSelectedIndex = selectedIndex.coerceIn(0, buttons.size - 1)
-    val circleRadius = 26.dp
-    var barSize by remember { mutableStateOf(IntSize.Zero) }
+    val circleRadius = 25.dp
+    var barSize by remember { mutableStateOf<IntSize?>(null) }
     val density = LocalDensity.current
 
     val offsetStep = remember(barSize) {
-        barSize.width.toFloat() / (buttons.size * 2)
+        barSize?.let {
+            it.width.toFloat() / (buttons.size * 2)
+        } ?: 0f
     }
 
     val offset = offsetStep + safeSelectedIndex * 2 * offsetStep
@@ -61,11 +64,11 @@ fun AnimatedNavigationBar(
         IntOffset(it.toInt() - circleRadiusPx, -circleRadiusPx)
     }
 
-    val barShape = remember(cutoutOffset) {
+    val barShape = remember(cutoutOffset.roundToInt()) {
         BarShape(
             offset = cutoutOffset,
             circleRadius = circleRadius,
-            cornerRadius = 25.dp
+            cornerRadius = 24.dp
         )
     }
 
@@ -82,7 +85,9 @@ fun AnimatedNavigationBar(
 
         Row(
             modifier = Modifier
-                .onPlaced { barSize = it.size }
+                .onPlaced {
+                    if (barSize == null) barSize = it.size
+                }
                 .graphicsLayer {
                     shape = barShape
                     clip = true

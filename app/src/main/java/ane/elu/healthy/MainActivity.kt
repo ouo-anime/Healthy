@@ -3,24 +3,17 @@ package ane.elu.healthy
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import ane.elu.healthy.ui.theme.CarbCounterTheme
-import androidx.core.view.WindowCompat
-import androidx.compose.ui.graphics.toArgb
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -41,34 +34,39 @@ class MainActivity : ComponentActivity() {
                 window.statusBarColor = MaterialTheme.colorScheme.primary.toArgb()
                 window.navigationBarColor = MaterialTheme.colorScheme.onPrimaryContainer.toArgb()
 
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .nestedScroll(scrollBehavior.nestedScrollConnection),
-                    topBar = {
-                        TopAppBarComponent(scrollBehavior = scrollBehavior)
-                    },
-                    bottomBar = {
-                        navigationBarInfo?.let { info ->
-                            AnimatedNavigationBar(
-                                buttons = info.buttons,
-                                selectedIndex = info.selectedIndex,
-                                onItemClick = info.onItemClick
+                Box(modifier = Modifier.fillMaxSize()) {
+
+                    Scaffold(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = {
+                            TopAppBarComponent(scrollBehavior = scrollBehavior)
+                        },
+                        containerColor = MaterialTheme.colorScheme.background
+                    ) { innerPadding ->
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            color = MaterialTheme.colorScheme.background
+                        ) {
+                            MainContentAndNavLogic(
+                                navController = navController,
+                                onProvideNavigationBarInfo = { info ->
+                                    navigationBarInfo = info
+                                }
                             )
                         }
                     }
-                ) { innerPadding ->
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        MainContentAndNavLogic(
-                            navController = navController,
-                            onProvideNavigationBarInfo = { info ->
-                                navigationBarInfo = info
-                            }
+
+                    navigationBarInfo?.let { info ->
+                        AnimatedNavigationBar(
+                            buttons = info.buttons,
+                            selectedIndex = info.selectedIndex,
+                            onItemClick = info.onItemClick,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
                         )
                     }
                 }
