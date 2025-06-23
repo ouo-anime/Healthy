@@ -1,5 +1,7 @@
 package ane.elu.healthy
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,8 +19,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.zIndex
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
+@SuppressLint("UnusedTransitionTargetStateParameter")
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AnimatedNavigationBar(
     buttons: List<ButtonData>,
@@ -37,46 +42,62 @@ fun AnimatedNavigationBar(
     val density = LocalDensity.current
 
     val offsetStep = remember(barSize) {
-        barSize?.let {
-            it.width.toFloat() / (buttons.size * 2)
-        } ?: 0f
+        barSize?.let { it.width.toFloat() / (buttons.size * 2) } ?: 0f
     }
 
-    val offset = offsetStep + safeSelectedIndex * 2 * offsetStep
-    val circleRadiusPx = density.run { circleRadius.toPx().toInt() }
+    val targetOffset = offsetStep + safeSelectedIndex * 2 * offsetStep
+    val circleRadiusPx = with(density) { circleRadius.toPx().toInt() }
 
-    val offsetTransition = updateTransition(offset, label = "offset transition")
-    val animation = spring<Float>(dampingRatio = 0.9f, stiffness = Spring.StiffnessLow)
+    var prevSelectedIndex by remember { mutableIntStateOf(safeSelectedIndex) }
+    LaunchedEffect(safeSelectedIndex) {
+        prevSelectedIndex = safeSelectedIndex
+    }
+    val indexDistance = abs(safeSelectedIndex - prevSelectedIndex)
 
-    val cutoutOffset by offsetTransition.animateFloat(
+    val transition = updateTransition(targetState = targetOffset, label = "NavigationBarTransition")
+    val animatedOffset by transition.animateFloat(
         transitionSpec = {
-            if (initialState == 0f) snap() else animation
+            val stiffness = when (indexDistance) {
+                0 -> Spring.StiffnessLow
+                1 -> Spring.StiffnessMedium
+                2 -> Spring.StiffnessMediumLow
+                else -> Spring.StiffnessVeryLow
+            }
+            val damping = when (indexDistance) {
+                0 -> 1.5f
+                1 -> 1.2f
+                2 -> 0.9f
+                else -> 0.75f
+            }
+            spring(dampingRatio = damping, stiffness = stiffness)
         },
-        label = "cutout offset"
+        label = "AnimatedOffset"
     ) { it }
 
-    val circleOffset by offsetTransition.animateIntOffset(
-        transitionSpec = {
-            if (initialState == 0f) snap() else spring(animation.dampingRatio, animation.stiffness)
-        },
-        label = "circle offset"
-    ) {
-        IntOffset(it.toInt() - circleRadiusPx, -circleRadiusPx)
-    }
+    val circleOffset = IntOffset(animatedOffset.roundToInt() - circleRadiusPx, -circleRadiusPx)
 
-    val barShape = remember(cutoutOffset.roundToInt()) {
+    val barShape = remember(animatedOffset.roundToInt()) {
         BarShape(
-            offset = cutoutOffset,
+            offset = animatedOffset,
             circleRadius = circleRadius,
-            cornerRadius = 24.dp
+            cornerRadius = 0.dp
         )
     }
 
     Box(modifier = modifier) {
+        val iconScale by transition.animateFloat(
+            transitionSpec = { spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMedium) },
+            label = "IconScale"
+        ) { 1f }
+
         Circle(
             modifier = Modifier
                 .offset { circleOffset }
-                .zIndex(1f),
+                .zIndex(1f)
+                .graphicsLayer {
+                    scaleX = iconScale
+                    scaleY = iconScale
+                },
             color = MaterialTheme.colorScheme.surfaceTint,
             radius = circleRadius,
             button = buttons[safeSelectedIndex],
@@ -94,27 +115,38 @@ fun AnimatedNavigationBar(
                 }
                 .fillMaxWidth()
                 .height(56.dp)
-                .background(MaterialTheme.colorScheme.onPrimaryContainer),
+                .background(MaterialTheme.colorScheme.primary),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
             buttons.forEachIndexed { index, button ->
                 val isSelected = index == safeSelectedIndex
+                val iconAlpha by animateFloatAsState(
+                    targetValue = if (isSelected) 0f else 0.5f,
+                    animationSpec = tween(durationMillis = 350)
+                )
+                val labelAlpha by animateFloatAsState(
+                    targetValue = if (isSelected) 0f else 1f,
+                    animationSpec = tween(durationMillis = 350)
+                )
+
                 NoRippleNavItem(
                     selected = isSelected,
                     onClick = { onItemClick(index) },
                     icon = {
-                        val iconAlpha by animateFloatAsState(
-                            targetValue = if (isSelected) 0f else 0.5f,
-                            label = "Navbar item icon"
-                        )
                         Icon(
                             imageVector = button.icon,
                             contentDescription = button.text,
                             modifier = Modifier.alpha(iconAlpha)
                         )
                     },
-                    label = { Text(button.text, style = TextStyle(fontSize = 12.sp)) },
+                    label = {
+                        Text(
+                            button.text,
+                            style = TextStyle(fontSize = 12.sp),
+                            modifier = Modifier.alpha(labelAlpha)
+                        )
+                    },
                     selectedColor = MaterialTheme.colorScheme.surface,
                     unselectedColor = MaterialTheme.colorScheme.surface
                 )
@@ -143,6 +175,7 @@ fun NoRippleNavItem(
     ) {
         CompositionLocalProvider(LocalContentColor provides if (selected) selectedColor else unselectedColor) {
             icon()
+            Spacer(modifier = Modifier.height(2.9.dp))
             label()
         }
     }

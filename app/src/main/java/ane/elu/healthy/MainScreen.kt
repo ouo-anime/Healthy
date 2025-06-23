@@ -2,7 +2,9 @@ package ane.elu.healthy
 
 import android.annotation.SuppressLint
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.outlined.Hub
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,7 +25,8 @@ data class NavigationBarInfo(
 @Composable
 fun MainContentAndNavLogic(
     navController: NavHostController,
-    onProvideNavigationBarInfo: (NavigationBarInfo) -> Unit
+    onProvideNavigationBarInfo: (NavigationBarInfo) -> Unit,
+    onScrollChange: (Boolean) -> Unit
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute by derivedStateOf { currentBackStackEntry?.destination?.route }
@@ -33,6 +36,16 @@ fun MainContentAndNavLogic(
             text = "Home",
             icon = Icons.Outlined.Hub,
             route = Screen.home.route
+        ),
+        ButtonData(
+            text = "Notes",
+            icon = Icons.AutoMirrored.Outlined.Notes,
+            route = Screen.notes.route
+        ),
+        ButtonData(
+            text = "Clock",
+            icon = Icons.Outlined.Timer,
+            route = Screen.clock.route
         ),
         ButtonData(
             text = "Diabetes",
@@ -63,7 +76,11 @@ fun MainContentAndNavLogic(
         navController = navController,
         startDestination = Screen.home.route,
     ) {
-        composable(Screen.home.route) { HomeScreen() }
+        composable(Screen.home.route) {
+            HomeScreen(onScrollChange = onScrollChange)
+        }
+        composable(Screen.notes.route) { NotesScreen() }
+        composable(Screen.clock.route) { ClockScreen() }
         composable(Screen.calc.route) { DiabetesScreen() }
     }
 }

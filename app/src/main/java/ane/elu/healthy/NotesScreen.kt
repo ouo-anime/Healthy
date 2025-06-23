@@ -5,12 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,17 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HomeScreen(
-    onScrollChange: (Boolean) -> Unit
-) {
+fun NotesScreen() {
     val listState = rememberLazyListState()
-    var lastOffset by remember { mutableIntStateOf(0) }
-
-    LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }) {
-        val current = listState.firstVisibleItemScrollOffset
-        onScrollChange(current > lastOffset)
-        lastOffset = current
-    }
 
     LazyColumn(
         state = listState,

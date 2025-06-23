@@ -14,7 +14,7 @@ class BarShape(
     private val offset: Float,
     private val circleRadius: Dp,
     private val cornerRadius: Dp,
-    private val circleGap: Dp = 5.dp
+    private val circleGap: Dp = 7.dp
 ) : Shape {
     override fun createOutline(
         size: Size,
@@ -31,7 +31,7 @@ class BarShape(
         val cutoutCenterX = offset
 
         return Path().apply {
-            val cutoutEdgeOffset = cutoutRadius * 1.5f
+            val cutoutEdgeOffset = cutoutRadius * 1.6f
             val cutoutLeftX = (cutoutCenterX - cutoutEdgeOffset).coerceAtLeast(0f)
             val cutoutRightX = (cutoutCenterX + cutoutEdgeOffset).coerceAtMost(size.width)
 
