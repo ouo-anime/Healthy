@@ -29,7 +29,9 @@ fun AnimatedNavigationBar(
     buttons: List<ButtonData>,
     selectedIndex: Int,
     onItemClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isVertical: Boolean = false,
+    cornerRadius: Dp = 0.dp
 ) {
     if (buttons.isEmpty()) {
         Box(modifier = modifier)
@@ -41,8 +43,13 @@ fun AnimatedNavigationBar(
     var barSize by remember { mutableStateOf<IntSize?>(null) }
     val density = LocalDensity.current
 
-    val offsetStep = remember(barSize) {
-        barSize?.let { it.width.toFloat() / (buttons.size * 2) } ?: 0f
+    val offsetStep = remember(barSize, isVertical) {
+        barSize?.let {
+            if (isVertical)
+                it.height.toFloat() / (buttons.size * 2)
+            else
+                it.width.toFloat() / (buttons.size * 2)
+        } ?: 0f
     }
 
     val targetOffset = offsetStep + safeSelectedIndex * 2 * offsetStep
@@ -74,13 +81,18 @@ fun AnimatedNavigationBar(
         label = "AnimatedOffset"
     ) { it }
 
-    val circleOffset = IntOffset(animatedOffset.roundToInt() - circleRadiusPx, -circleRadiusPx)
+    val circleOffset = if (isVertical) {
+        IntOffset(barSize?.width?.minus(circleRadiusPx) ?: 0, animatedOffset.roundToInt() - circleRadiusPx)
+    } else {
+        IntOffset(animatedOffset.roundToInt() - circleRadiusPx, -circleRadiusPx)
+    }
 
-    val barShape = remember(animatedOffset.roundToInt()) {
+    val barShape = remember(animatedOffset.roundToInt(), isVertical) {
         BarShape(
             offset = animatedOffset,
             circleRadius = circleRadius,
-            cornerRadius = 0.dp
+            isVertical = isVertical,
+            cornerRadius = cornerRadius
         )
     }
 
@@ -104,52 +116,107 @@ fun AnimatedNavigationBar(
             iconColor = MaterialTheme.colorScheme.surface
         )
 
-        Row(
-            modifier = Modifier
-                .onPlaced {
-                    if (barSize == null) barSize = it.size
-                }
-                .graphicsLayer {
-                    shape = barShape
-                    clip = true
-                }
-                .fillMaxWidth()
-                .height(56.dp)
-                .background(MaterialTheme.colorScheme.primary),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            buttons.forEachIndexed { index, button ->
-                val isSelected = index == safeSelectedIndex
-                val iconAlpha by animateFloatAsState(
-                    targetValue = if (isSelected) 0f else 0.5f,
-                    animationSpec = tween(durationMillis = 350)
-                )
-                val labelAlpha by animateFloatAsState(
-                    targetValue = if (isSelected) 0f else 1f,
-                    animationSpec = tween(durationMillis = 350)
-                )
+        if (isVertical) {
+            Column(
+                modifier = Modifier
+                    .onPlaced {
+                        if (barSize == null) barSize = it.size
+                    }
+                    .graphicsLayer {
+                        shape = barShape
+                        clip = true
+                    }
+                    .fillMaxHeight()
+                    .width(80.dp)
+                    .background(MaterialTheme.colorScheme.primary),
+                verticalArrangement = Arrangement.SpaceAround,
+                horizontalAlignment = Alignment.End
+            ) {
+                buttons.forEachIndexed { index, button ->
+                    val isSelected = index == safeSelectedIndex
+                    val iconAlpha by animateFloatAsState(
+                        targetValue = if (isSelected) 0f else 0.5f,
+                        animationSpec = tween(durationMillis = 350)
+                    )
+                    val labelAlpha by animateFloatAsState(
+                        targetValue = if (isSelected) 0f else 1f,
+                        animationSpec = tween(durationMillis = 350)
+                    )
 
-                NoRippleNavItem(
-                    selected = isSelected,
-                    onClick = { onItemClick(index) },
-                    icon = {
-                        Icon(
-                            imageVector = button.icon,
-                            contentDescription = button.text,
-                            modifier = Modifier.alpha(iconAlpha)
-                        )
-                    },
-                    label = {
-                        Text(
-                            button.text,
-                            style = TextStyle(fontSize = 12.sp),
-                            modifier = Modifier.alpha(labelAlpha)
-                        )
-                    },
-                    selectedColor = MaterialTheme.colorScheme.surface,
-                    unselectedColor = MaterialTheme.colorScheme.surface
-                )
+                    NoRippleNavItem(
+                        selected = isSelected,
+                        onClick = { onItemClick(index) },
+                        icon = {
+                            Icon(
+                                imageVector = button.icon,
+                                contentDescription = button.text,
+                                modifier = Modifier
+                                    .alpha(iconAlpha)
+                                    .padding(end = 12.dp),
+                            )
+                        },
+                        label = {
+                            Text(
+                                button.text,
+                                style = TextStyle(fontSize = 12.sp),
+                                modifier = Modifier
+                                    .alpha(labelAlpha)
+                                    .padding(end = 12.dp),
+                            )
+                        },
+                        selectedColor = MaterialTheme.colorScheme.surface,
+                        unselectedColor = MaterialTheme.colorScheme.surface
+                    )
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .onPlaced {
+                        if (barSize == null) barSize = it.size
+                    }
+                    .graphicsLayer {
+                        shape = barShape
+                        clip = true
+                    }
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .background(MaterialTheme.colorScheme.primary),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                buttons.forEachIndexed { index, button ->
+                    val isSelected = index == safeSelectedIndex
+                    val iconAlpha by animateFloatAsState(
+                        targetValue = if (isSelected) 0f else 0.5f,
+                        animationSpec = tween(durationMillis = 350)
+                    )
+                    val labelAlpha by animateFloatAsState(
+                        targetValue = if (isSelected) 0f else 1f,
+                        animationSpec = tween(durationMillis = 350)
+                    )
+
+                    NoRippleNavItem(
+                        selected = isSelected,
+                        onClick = { onItemClick(index) },
+                        icon = {
+                            Icon(
+                                imageVector = button.icon,
+                                contentDescription = button.text,
+                                modifier = Modifier.alpha(iconAlpha)
+                            )
+                        },
+                        label = {
+                            Text(
+                                button.text,
+                                style = TextStyle(fontSize = 12.sp),
+                                modifier = Modifier.alpha(labelAlpha)
+                            )
+                        },
+                        selectedColor = MaterialTheme.colorScheme.surface,
+                        unselectedColor = MaterialTheme.colorScheme.surface
+                    )
+                }
             }
         }
     }
@@ -166,6 +233,7 @@ fun NoRippleNavItem(
 ) {
     Column(
         modifier = Modifier
+            .width(80.dp)
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }

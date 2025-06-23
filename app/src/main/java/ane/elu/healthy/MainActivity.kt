@@ -1,5 +1,6 @@
 package ane.elu.healthy
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,6 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -18,6 +21,7 @@ import ane.elu.healthy.ui.theme.CarbCounterTheme
 
 class MainActivity : ComponentActivity() {
     private var keepSplashScreen = true
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
@@ -53,46 +57,106 @@ class MainActivity : ComponentActivity() {
                     @Suppress("DEPRECATION")
                     window.navigationBarColor = MaterialTheme.colorScheme.primary.toArgb()
 
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Scaffold(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .nestedScroll(scrollBehavior.nestedScrollConnection),
-                            topBar = {
-                                TopAppBarComponent(scrollBehavior = scrollBehavior)
-                            },
-                            containerColor = MaterialTheme.colorScheme.background
-                        ) { innerPadding ->
-                            Surface(
+                    if (isTablet()) {
+                        Row(modifier = Modifier.fillMaxSize()) {
+                            navigationBarInfo?.let { info ->
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(120.dp),
+                                ) {
+                                    AnimatedNavigationBar(
+                                        buttons = info.buttons,
+                                        selectedIndex = info.selectedIndex,
+                                        onItemClick = info.onItemClick,
+                                        modifier = Modifier.fillMaxSize(),
+                                        isVertical = true,
+                                        cornerRadius = 0.dp
+                                    )
+                                }
+                            }
+
+                            Scaffold(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(innerPadding),
-                                color = MaterialTheme.colorScheme.background
-                            ) {
-                                MainContentAndNavLogic(
-                                    navController = navController,
-                                    onProvideNavigationBarInfo = { info ->
-                                        navigationBarInfo = info
-                                    },
-                                    onScrollChange = { isScrollingDown ->
-                                        isNavBarCollapsed.value = isScrollingDown
-                                    }
-                                )
+                                    .fillMaxHeight()
+                                    .weight(1f)
+                                    .nestedScroll(scrollBehavior.nestedScrollConnection),
+                                topBar = {
+                                    TopAppBarComponent(scrollBehavior = scrollBehavior)
+                                },
+                                containerColor = MaterialTheme.colorScheme.background
+                            ) { innerPadding ->
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(innerPadding),
+                                    color = MaterialTheme.colorScheme.background
+                                ) {
+                                    MainContentAndNavLogic(
+                                        navController = navController,
+                                        onProvideNavigationBarInfo = { info ->
+                                            navigationBarInfo = info
+                                        },
+                                        onScrollChange = { isScrollingDown ->
+                                            isNavBarCollapsed.value = isScrollingDown
+                                        }
+                                    )
+                                }
                             }
                         }
-                        navigationBarInfo?.let { info ->
-                            AnimatedNavigationBar(
-                                buttons = info.buttons,
-                                selectedIndex = info.selectedIndex,
-                                onItemClick = info.onItemClick,
+                    } else {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Scaffold(
                                 modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .navigationBarsPadding()
-                            )
+                                    .fillMaxSize()
+                                    .nestedScroll(scrollBehavior.nestedScrollConnection),
+                                topBar = {
+                                    TopAppBarComponent(scrollBehavior = scrollBehavior)
+                                },
+                                containerColor = MaterialTheme.colorScheme.background
+                            ) { innerPadding ->
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(innerPadding),
+                                    color = MaterialTheme.colorScheme.background
+                                ) {
+                                    MainContentAndNavLogic(
+                                        navController = navController,
+                                        onProvideNavigationBarInfo = { info ->
+                                            navigationBarInfo = info
+                                        },
+                                        onScrollChange = { isScrollingDown ->
+                                            isNavBarCollapsed.value = isScrollingDown
+                                        }
+                                    )
+                                }
+                            }
+
+                            navigationBarInfo?.let { info ->
+                                AnimatedNavigationBar(
+                                    buttons = info.buttons,
+                                    selectedIndex = info.selectedIndex,
+                                    onItemClick = info.onItemClick,
+                                    modifier = Modifier
+                                        .align(Alignment.BottomStart)
+                                        .fillMaxWidth()
+                                        .navigationBarsPadding(),
+                                    isVertical = false,
+                                    cornerRadius = 0.dp
+                                )
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+@SuppressLint("ConfigurationScreenWidthHeight")
+@Composable
+fun isTablet(): Boolean {
+    val config = LocalConfiguration.current
+    return config.screenWidthDp >= 600
 }
