@@ -71,7 +71,6 @@ class MainActivity : ComponentActivity() {
                                         onItemClick = info.onItemClick,
                                         modifier = Modifier.fillMaxSize(),
                                         isVertical = true,
-                                        cornerRadius = 0.dp
                                     )
                                 }
                             }
@@ -143,7 +142,8 @@ class MainActivity : ComponentActivity() {
                                         .fillMaxWidth()
                                         .navigationBarsPadding(),
                                     isVertical = false,
-                                    cornerRadius = 0.dp
+                                    strokeColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                                    strokeWidth = 2.5.dp
                                 )
                             }
                         }

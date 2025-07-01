@@ -12,7 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
@@ -31,7 +33,8 @@ fun AnimatedNavigationBar(
     onItemClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     isVertical: Boolean = false,
-    cornerRadius: Dp = 0.dp
+    strokeColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+    strokeWidth: Dp = 2.5.dp
 ) {
     if (buttons.isEmpty()) {
         Box(modifier = modifier)
@@ -82,7 +85,10 @@ fun AnimatedNavigationBar(
     ) { it }
 
     val circleOffset = if (isVertical) {
-        IntOffset(barSize?.width?.minus(circleRadiusPx) ?: 0, animatedOffset.roundToInt() - circleRadiusPx)
+        IntOffset(
+            barSize?.width?.minus(circleRadiusPx) ?: 0,
+            animatedOffset.roundToInt() - circleRadiusPx
+        )
     } else {
         IntOffset(animatedOffset.roundToInt() - circleRadiusPx, -circleRadiusPx)
     }
@@ -92,11 +98,23 @@ fun AnimatedNavigationBar(
             offset = animatedOffset,
             circleRadius = circleRadius,
             isVertical = isVertical,
-            cornerRadius = cornerRadius
         )
     }
 
     Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .drawBehind {
+                    val strokePath = barShape.getStrokePath(size, density)
+                    drawPath(
+                        path = strokePath,
+                        color = strokeColor,
+                        style = Stroke(width = strokeWidth.toPx())
+                    )
+                }
+        )
+
         val iconScale by transition.animateFloat(
             transitionSpec = { spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMedium) },
             label = "IconScale"
