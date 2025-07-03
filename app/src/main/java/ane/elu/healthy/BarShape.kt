@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 class BarShape(
     private val offset: Float,
     private val circleRadius: Dp,
-    private val circleGap: Dp = 7.dp,
+    private val circleGap: Dp = 8.dp,
     private val isVertical: Boolean = false
 ) : Shape {
     override fun createOutline(
@@ -50,7 +50,7 @@ class BarShape(
                 close()
             } else {
                 val cutoutCenterY = offset
-                val cutoutEdgeOffset = cutoutRadius * 1.6f
+                val cutoutEdgeOffset = cutoutRadius
                 val cutoutTopY = (cutoutCenterY - cutoutEdgeOffset).coerceAtLeast(0f)
                 val cutoutBottomY = (cutoutCenterY + cutoutEdgeOffset).coerceAtMost(size.height)
 
@@ -58,11 +58,11 @@ class BarShape(
                 lineTo(size.width, cutoutTopY)
                 cubicTo(
                     size.width, cutoutCenterY - cutoutRadius,
-                    size.width - cutoutRadius, cutoutCenterY - cutoutRadius,
-                    size.width - cutoutRadius, cutoutCenterY
+                    size.width - cutoutRadius * 0.8f, cutoutCenterY - cutoutRadius,
+                    size.width - cutoutRadius * 0.8f, cutoutCenterY
                 )
                 cubicTo(
-                    size.width - cutoutRadius, cutoutCenterY + cutoutRadius,
+                    size.width - cutoutRadius * 0.8f, cutoutCenterY + cutoutRadius,
                     size.width, cutoutCenterY + cutoutRadius,
                     size.width, cutoutBottomY
                 )
@@ -102,27 +102,7 @@ class BarShape(
                 // Right segment of the top stroke
                 lineTo(size.width, 0f)
             } else {
-                val cutoutCenterY = offset
-                val cutoutTopY = (cutoutCenterY - cutoutEdgeOffset).coerceAtLeast(0f)
-                val cutoutBottomY = (cutoutCenterY + cutoutEdgeOffset).coerceAtMost(size.height)
-
-                // Top segment of the right stroke
-                moveTo(size.width, 0f)
-                lineTo(size.width, cutoutTopY)
-                // Cutout curve (top side)
-                cubicTo(
-                    size.width, cutoutCenterY - cutoutRadius,
-                    size.width - cutoutRadius, cutoutCenterY - cutoutRadius,
-                    size.width - cutoutRadius, cutoutCenterY
-                )
-                // Cutout curve (bottom side)
-                cubicTo(
-                    size.width - cutoutRadius, cutoutCenterY + cutoutRadius,
-                    size.width, cutoutCenterY + cutoutRadius,
-                    size.width, cutoutBottomY
-                )
-                // Bottom segment of the right stroke
-                lineTo(size.width, size.height)
+                // remove stroke
             }
         }
     }

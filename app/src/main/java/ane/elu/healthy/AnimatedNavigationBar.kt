@@ -86,11 +86,14 @@ fun AnimatedNavigationBar(
 
     val circleOffset = if (isVertical) {
         IntOffset(
-            barSize?.width?.minus(circleRadiusPx) ?: 0,
-            animatedOffset.roundToInt() - circleRadiusPx
+            (barSize?.width ?: 0) - circleRadiusPx * 2,
+            (animatedOffset - circleRadiusPx).roundToInt()
         )
     } else {
-        IntOffset(animatedOffset.roundToInt() - circleRadiusPx, -circleRadiusPx)
+        IntOffset(
+            (animatedOffset - circleRadiusPx).roundToInt(),
+            -circleRadiusPx
+        )
     }
 
     val barShape = remember(animatedOffset.roundToInt(), isVertical) {
